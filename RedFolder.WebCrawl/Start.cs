@@ -18,7 +18,7 @@ namespace RedFolder.WebCrawl
         {
             var request = await req.Content.ReadAsAsync<CrawlRequest>();
             if (request == null) request = new CrawlRequest();
-            request.Host = request.Host ?? "https://www.red-folder.com";
+            request.Host = request.Host ?? "https://red-folder.com";
 
             // Function input comes from the request content.
             string instanceId = await starter.StartNewAsync("Crawl", request);

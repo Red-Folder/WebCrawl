@@ -13,11 +13,14 @@ namespace RedFolder.WebCrawl.Crawler
             _internalDomains = internalDomains;
         }
 
-        public override IUrlInfo Process(string url)
+        public override UrlInfo Process(string url)
         {
             if (CanBeHandled(url))
             {
-                return Handle(url);
+                return new UrlInfo
+                {
+                    Url = url
+                };
             }
             else
             {
@@ -30,21 +33,6 @@ namespace RedFolder.WebCrawl.Crawler
             if (_internalDomains.Where(x => url.StartsWith(x)).Count() > 0) return false;
 
             return true;
-        }
-
-        private IUrlInfo Handle(string url)
-        {
-            return new ExternalPageUrlInfo(url);
-        }
-
-        private IList<string> PopulateInternalDomains()
-        {
-            return new List<string>
-            {
-                //@"https://github.com/red-folder",
-                //@"http://red-folder.blogspot.co.uk/",
-
-            };
         }
     }
 }

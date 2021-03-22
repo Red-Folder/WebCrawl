@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -8,6 +9,8 @@ namespace RedFolder.WebCrawl
 {
     public static class Crawl
     {
+        private const int MAX_CRAWL_DEPTH = 10;
+
         [FunctionName("Crawl")]
         public static async Task<CrawlResults> RunOrchestrator(
             [OrchestrationTrigger] IDurableOrchestrationContext context,
@@ -15,11 +18,28 @@ namespace RedFolder.WebCrawl
         {
             var request = context.GetInput<CrawlRequest>();
 
-            var crawler = new Crawler.Crawler(request, log);
-            crawler.AddUrl($"{request.Host}/sitemap.xml");
-            var crawlResult = crawler.Crawl();
+            var state = new CrawlState();
+            state.AddUrl($"{request.Host}/sitemap.xml");
 
-            return crawlResult;
+            var currentDepth = 0;
+            while (state.HasAwaiting && currentDepth < MAX_CRAWL_DEPTH)
+            {
+                var urlsToCrawl = state.Awaiting();
+
+                var crawlTasks = urlsToCrawl
+                                    .Select(x => context.CallActivityAsync<UrlInfo>("CrawlUrl", x))
+                                    .ToList();
+
+                await Task.WhenAll(crawlTasks.ToArray());
+
+                var result = crawlTasks.Select(x => x.Result).ToList();
+
+                state.UpdateWithResults(result);
+
+                currentDepth++;
+            }
+
+            return new CrawlResults(request.Host, state);
         }
     }
 }

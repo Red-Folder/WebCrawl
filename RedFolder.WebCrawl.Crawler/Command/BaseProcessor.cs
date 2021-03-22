@@ -12,7 +12,7 @@ namespace RedFolder.WebCrawl.Crawler
             return this;
         }
 
-        public virtual IUrlInfo Process(string url)
+        public virtual UrlInfo Process(string url)
         {
             if (_next == null)
             {

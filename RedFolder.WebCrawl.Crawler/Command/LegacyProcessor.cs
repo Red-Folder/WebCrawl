@@ -5,11 +5,15 @@ namespace RedFolder.WebCrawl.Crawler
 {
     public class LegacyProcessor : BaseProcessor
     {
-        public override IUrlInfo Process(string url)
+        public override UrlInfo Process(string url)
         {
             if (CanBeHandled(url))
             {
-                return Handle(url);
+                return new UrlInfo
+                {
+                    Url = url,
+                    InvalidationMessage = "Legacy Reference"
+                };
             }
             else
             {
@@ -24,11 +28,6 @@ namespace RedFolder.WebCrawl.Crawler
             if (url.ToLower().Contains("blog.red-folder.com")) return true;
 
             return false;
-        }
-
-        private IUrlInfo Handle(string url)
-        {
-            return new LegacyUrlInfo(url, String.Format("Legacy reference"));
         }
     }
 }

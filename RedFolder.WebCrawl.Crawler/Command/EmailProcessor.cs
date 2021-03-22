@@ -12,11 +12,14 @@ namespace RedFolder.WebCrawl.Crawler
             _knownEmails = PopulateKnownEmails();
         }
 
-        public override IUrlInfo Process(string url)
+        public override UrlInfo Process(string url)
         {
             if (CanBeHandled(url))
             {
-                return Handle(url);
+                return new UrlInfo
+                {
+                    Url = url
+                };
             }
             else
             {
@@ -29,11 +32,6 @@ namespace RedFolder.WebCrawl.Crawler
             if (_knownEmails.Contains(url)) return true;
 
             return false;
-        }
-
-        private IUrlInfo Handle(string url)
-        {
-            return new EmailUrlInfo(url);
         }
 
         private IList<string> PopulateKnownEmails()

@@ -4,7 +4,7 @@ namespace RedFolder.WebCrawl.Crawler
 {
     public interface IProcessUrl
     {
-        IUrlInfo Process(string url);
+        UrlInfo Process(string url);
         IProcessUrl Next(IProcessUrl nextProcessor);
     }
 }

@@ -1,6 +1,5 @@
 ﻿using RedFolder.WebCrawl.Crawler.Helpers;
 using RedFolder.WebCrawl.Crawler.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,7 +16,7 @@ namespace RedFolder.WebCrawl.Crawler
             _linksExtrator = linksExtractor;
         }
 
-        public override IUrlInfo Process(string url)
+        public override UrlInfo Process(string url)
         {
             if (CanBeHandled(url))
             {
@@ -34,18 +33,21 @@ namespace RedFolder.WebCrawl.Crawler
             return url.StartsWith(_domain);
         }
 
-        private IUrlInfo Handle(string url)
+        private UrlInfo Handle(string url)
         {
             HttpGet(url);
             if (LastHttpStatusCode == System.Net.HttpStatusCode.OK || LastHttpStatusCode == System.Net.HttpStatusCode.MovedPermanently)
             {
                 if (_linksExtrator == null)
                 {
-                    return new PageUrlInfo(url);
+                    return new UrlInfo
+                    {
+                        Url = url
+                    };
                 }
                 else
                 {
-                    IList<IUrlInfo> links = null;
+                    IList<string> links = null;
                     if (_linksExtrator is ContentLinksExtractor)
                     {
                         links = _linksExtrator.Extract(LastHttpResponse);
@@ -55,19 +57,20 @@ namespace RedFolder.WebCrawl.Crawler
                         links = _linksExtrator.Extract(LastHttpResponseHeaders.GetValues("location").FirstOrDefault());
                     }
 
-                    if (links == null)
+                    return new UrlInfo
                     {
-                        return new PageUrlInfo(url);
-                    }
-                    else
-                    {
-                        return new PageUrlInfo(url, links);
-                    }
+                        Url = url,
+                        Links = links
+                    };
                 }
             }
             else
             {
-                return new PageUrlInfo(url, String.Format("Unexpected Status code: {0}", LastHttpStatusCode));
+                return new UrlInfo
+                {
+                    Url = url,
+                    InvalidationMessage = $"Unexpected Status code: {LastHttpStatusCode}"
+                };
             }
         }
     }

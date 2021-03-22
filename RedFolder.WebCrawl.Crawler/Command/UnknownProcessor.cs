@@ -4,9 +4,13 @@ namespace RedFolder.WebCrawl.Crawler
 {
     public class UnknownProcessor : BaseProcessor
     {
-        public override IUrlInfo Process(string url)
+        public override UrlInfo Process(string url)
         {
-            return new UnknownUrlInfo(url);
+            return new UrlInfo
+            {
+                Url = url,
+                InvalidationMessage = "Unknown url type"
+            };
         }
     }
 }

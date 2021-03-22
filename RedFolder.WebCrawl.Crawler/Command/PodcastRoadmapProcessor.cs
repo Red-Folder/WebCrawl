@@ -10,7 +10,7 @@ namespace RedFolder.WebCrawl.Crawler
         {
         }
 
-        public override IUrlInfo Process(string url)
+        public override UrlInfo Process(string url)
         {
             if (CanBeHandled(url))
             {
@@ -27,17 +27,15 @@ namespace RedFolder.WebCrawl.Crawler
             return url.Contains("/podcasts/roadmap");
         }
 
-        private IUrlInfo Handle(string url)
+        private UrlInfo Handle(string url)
         {
             HttpGet(url);
-            if (LastHttpStatusCode == System.Net.HttpStatusCode.Redirect)
+
+            return new UrlInfo
             {
-                return new PageUrlInfo(url);
-            }
-            else
-            {
-                return new PageUrlInfo(url, String.Format("Unexpected Status code: {0}", LastHttpStatusCode));
-            }
+                Url = url,
+                InvalidationMessage = LastHttpStatusCode == System.Net.HttpStatusCode.Redirect ? null : $"Unexpected Status code: {LastHttpStatusCode}"
+            };
         }
     }
 }

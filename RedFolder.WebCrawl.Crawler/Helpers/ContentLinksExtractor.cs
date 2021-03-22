@@ -20,16 +20,16 @@ namespace RedFolder.WebCrawl.Crawler.Helpers
             patterns.Add(@"<loc>(?<url>.*?)</loc>");
         }
 
-        public IList<IUrlInfo> Extract(string content)
+        public IList<string> Extract(string content)
         {
-            var links = new List<IUrlInfo>();
+            var links = new List<string>();
 
             foreach (var pattern in patterns)
             {
                 foreach (Match match in Regex.Matches(content, pattern, RegexOptions.IgnoreCase))
                 {
                     var formattedUrl = Format(match.Groups["url"].Value);
-                    links.Add(new AwaitingProcessingUrlInfo(formattedUrl));
+                    links.Add(formattedUrl);
                 }
             }
 

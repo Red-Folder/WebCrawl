@@ -1,5 +1,4 @@
-﻿using Moq;
-using RedFolder.WebCrawl.Crawler.Helpers;
+﻿using RedFolder.WebCrawl.Crawler.Helpers;
 using Xunit;
 
 namespace RedFolder.WebCrawl.Crawler.Command.UnitTests
@@ -15,7 +14,7 @@ namespace RedFolder.WebCrawl.Crawler.Command.UnitTests
 
             Assert.NotNull(results);
             Assert.Equal(1, results.Count);
-            Assert.Equal("https://www.red-folder.com/test.js", results[0].Url);
+            Assert.Equal("https://www.red-folder.com/test.js", results[0]);
         }
 
         [Fact]
@@ -27,7 +26,7 @@ namespace RedFolder.WebCrawl.Crawler.Command.UnitTests
 
             Assert.NotNull(results);
             Assert.Equal(1, results.Count);
-            Assert.Equal("https://www.red-folder.com/test.js", results[0].Url);
+            Assert.Equal("https://www.red-folder.com/test.js", results[0]);
         }
 
         [Fact]
@@ -39,7 +38,7 @@ namespace RedFolder.WebCrawl.Crawler.Command.UnitTests
 
             Assert.NotNull(results);
             Assert.Equal(1, results.Count);
-            Assert.Equal("https://www.red-folder.com/test.js", results[0].Url);
+            Assert.Equal("https://www.red-folder.com/test.js", results[0]);
         }
 
         [Fact]
@@ -51,7 +50,7 @@ namespace RedFolder.WebCrawl.Crawler.Command.UnitTests
 
             Assert.NotNull(results);
             Assert.Equal(1, results.Count);
-            Assert.Equal("https://www.red-folder.com/test.js", results[0].Url);
+            Assert.Equal("https://www.red-folder.com/test.js", results[0]);
         }
 
         [Fact]
@@ -68,11 +67,10 @@ namespace RedFolder.WebCrawl.Crawler.Command.UnitTests
 
             Assert.NotNull(results);
             Assert.Equal(4, results.Count);
-            Assert.Equal("https://www.red-folder.com/test.js", results[0].Url);
-            Assert.Equal("https://www.red-folder.com/test.js", results[1].Url);
-            Assert.Equal("https://www.red-folder.com/test.js", results[2].Url);
-            Assert.Equal("https://www.red-folder.com/test.js", results[3].Url);
+            Assert.Equal("https://www.red-folder.com/test.js", results[0]);
+            Assert.Equal("https://www.red-folder.com/test.js", results[1]);
+            Assert.Equal("https://www.red-folder.com/test.js", results[2]);
+            Assert.Equal("https://www.red-folder.com/test.js", results[3]);
         }
-
     }
 }

@@ -9,16 +9,16 @@ namespace RedFolder.WebCrawl.Crawler.Models
 
         public DateTime Timestamp { get; private set; }
 
-        public IList<Url> Urls { get; private set; }
+        public IReadOnlyList<Url> Urls { get; private set; }
 
-        public IList<Link> Links { get; private set; }
+        public IReadOnlyList<Link> Links { get; private set; }
 
-        public CrawlResults(string host, List<Url> urls, List<Link> links)
+        public CrawlResults(string host, CrawlState state)
         {
             Host = host;
             Timestamp = DateTime.UtcNow;
-            Urls = urls;
-            Links = links;
+            Urls = state.AllUrls();
+            Links = state.AllLinks();
         }
     }
 }
