@@ -1,24 +1,22 @@
 ﻿using RedFolder.WebCrawl.Crawler.Models;
-using System;
 
 namespace RedFolder.WebCrawl.Crawler
 {
-    public class LegacyProcessor : BaseProcessor
+    public class LegacyProcessor : IProcessUrl
     {
-        public override UrlInfo Process(string url)
+        public UrlInfo Process(string url)
         {
             if (CanBeHandled(url))
             {
                 return new UrlInfo
                 {
                     Url = url,
-                    InvalidationMessage = "Legacy Reference"
+                    InvalidationMessage = "Legacy Reference",
+                    UrlType = UrlInfo.UrlTypes.Legacy
                 };
             }
-            else
-            {
-                return base.Process(url);
-            }
+
+            return null;
         }
 
         private bool CanBeHandled(string url)

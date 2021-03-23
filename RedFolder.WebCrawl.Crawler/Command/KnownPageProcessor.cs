@@ -3,28 +3,27 @@ using System.Collections.Generic;
 
 namespace RedFolder.WebCrawl.Crawler
 {
-    public class KnownPageProcessor: BaseProcessor
+    public class KnownPageProcessor: IProcessUrl
     {
-        private IList<string> _knownUrls;
+        private readonly IList<string> _knownUrls;
 
         public KnownPageProcessor()
         {
             _knownUrls = PopulateKnownUrls();
         }
 
-        public override UrlInfo Process(string url)
+        public UrlInfo Process(string url)
         {
             if (CanBeHandled(url))
             {
                 return new UrlInfo
                 {
-                    Url = url
+                    Url = url,
+                    UrlType = UrlInfo.UrlTypes.KnownPage
                 };
             }
-            else
-            {
-                return base.Process(url);
-            }
+
+            return null;
         }
 
         private bool CanBeHandled(string url)
@@ -105,6 +104,5 @@ namespace RedFolder.WebCrawl.Crawler
                 @"https://en.wikipedia.org/wiki/microservices"
             };
         }
-  
     }
 }

@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
@@ -17,8 +18,14 @@ namespace RedFolder.WebCrawl
             ILogger log)
         {
             var request = await req.Content.ReadAsAsync<CrawlRequest>();
-            if (request == null) request = new CrawlRequest();
-            request.Host = request.Host ?? "https://red-folder.com";
+            if (request?.Host == null)
+            {
+                return new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Content = new StringContent("Host must be provided")
+                };
+            }
 
             // Function input comes from the request content.
             string instanceId = await starter.StartNewAsync("Crawl", request);

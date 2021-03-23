@@ -1,46 +1,56 @@
 ﻿using Microsoft.Extensions.Logging;
-using RedFolder.WebCrawl.Crawler.Helpers;
 using RedFolder.WebCrawl.Crawler.Models;
+using System;
 using System.Collections.Generic;
 
 namespace RedFolder.WebCrawl.Crawler
 {
     public class Crawler
     {
-        private string _githubDomain = @"https://github.com/red-folder";
-        private string _gistDomain = @"https://gist.github.com";
+        private readonly SortedList<int, IProcessUrl> _processors;
+        private readonly ILogger<Crawler> _log;
 
-        private string _host;
-
-        private IProcessUrl _processor;
-
-        public Crawler(string host, ILogger log)
+        public Crawler(SortedList<int, IProcessUrl> processors, ILogger<Crawler> log)
         {
-            _host = host;
-
-            var internalDomains = new List<string>
-            {
-                _host,
-                _githubDomain
-            };
-
-            _processor = new CloudflareCgiProcesser()
-                            .Next(new LegacyProcessor()
-                            .Next(new ImageProcessor(new ClientWrapper(log))
-                            .Next(new ContentProcessor(new ClientWrapper(log))
-                            .Next(new KnownPageProcessor()
-                            .Next(new EmailProcessor()
-                            .Next(new ExternalPageProcessor(internalDomains)
-                            .Next(new PodcastRoadmapProcessor(new ClientWrapper(log)))
-                            .Next(new PageProcessor(_gistDomain, new ClientWrapper(log), null)
-                            .Next(new PageProcessor(_githubDomain, new ClientWrapper(log), null)
-                            .Next(new PageProcessor(_host, new ClientWrapper(log), new ContentLinksExtractor(_host))
-                            .Next(new UnknownProcessor()))))))))));
+            _processors = processors;
+            _log = log;
         }
 
         public UrlInfo Crawl(string url)
         {
-            return _processor.Process(url);
+            try
+            {
+                UrlInfo result = null;
+
+                foreach (var processor in _processors.Values)
+                {
+                    result = processor.Process(url);
+
+                    if (result != null) break;
+                }
+
+                if (result == null)
+                {
+                    result = new UrlInfo
+                    {
+                        Url = url,
+                        InvalidationMessage = "Unknown url type",
+                        UrlType = UrlInfo.UrlTypes.Unknown
+                    };
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, $"Unhandled exception when processing {url}");
+                return new UrlInfo
+                {
+                    Url = url,
+                    InvalidationMessage = $"Exception: {ex.Message}",
+                    UrlType = UrlInfo.UrlTypes.Exception
+                };
+            }
         }
     }
 }

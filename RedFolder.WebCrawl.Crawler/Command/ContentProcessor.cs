@@ -1,25 +1,25 @@
 ﻿using RedFolder.WebCrawl.Crawler.Helpers;
 using RedFolder.WebCrawl.Crawler.Models;
-using System;
 
 namespace RedFolder.WebCrawl.Crawler
 {
-    public class ContentProcessor : HttpClientBaseProcessor
+    public class ContentProcessor : IProcessUrl
     {
-        public ContentProcessor(IClientWrapper httpClient) : base(httpClient)
+        private readonly IHttpClientWrapper _httpClient;
+
+        public ContentProcessor(IHttpClientWrapper httpClient)
         {
+            _httpClient = httpClient;
         }
 
-        public override UrlInfo Process(string url)
+        public UrlInfo Process(string url)
         {
             if (CanBeHandled(url))
             {
                 return Handle(url);
             }
-            else
-            {
-                return base.Process(url);
-            }
+
+            return null;
         }
 
         private bool CanBeHandled(string url)
@@ -32,12 +32,13 @@ namespace RedFolder.WebCrawl.Crawler
 
         private UrlInfo Handle(string url)
         {
-            HttpGet(url);
+            _httpClient.Get(url);
 
             return new UrlInfo
             {
                 Url = url,
-                InvalidationMessage = LastHttpStatusCode == System.Net.HttpStatusCode.OK ? "" : $"Unexpected Status code: {LastHttpStatusCode}"
+                InvalidationMessage = _httpClient.LastHttpStatusCode == System.Net.HttpStatusCode.OK ? "" : $"Unexpected Status code: {_httpClient.LastHttpStatusCode}",
+                UrlType = UrlInfo.UrlTypes.Content
             };
         }
     }

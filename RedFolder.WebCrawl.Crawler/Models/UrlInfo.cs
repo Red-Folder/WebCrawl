@@ -8,6 +8,8 @@ namespace RedFolder.WebCrawl.Crawler.Models
         public string InvalidationMessage { get; set; }
         public IList<string> Links { get; set; }
 
+        public UrlTypes UrlType { get; set; }
+
         public bool HasLinks => Links != null && Links.Count > 0;
 
         public bool Valid => string.IsNullOrEmpty(InvalidationMessage);
@@ -22,6 +24,21 @@ namespace RedFolder.WebCrawl.Crawler.Models
             {
                 return $"{Url} - {InvalidationMessage}";
             }
+        }
+
+        public enum UrlTypes
+        {
+            Unknown,
+            CloudflareCgi,
+            Content,
+            Email,
+            ExternalPage,
+            Image,
+            KnownPage,
+            Legacy,
+            PodcastRoadmap,
+            Page,
+            Exception
         }
     }
 }

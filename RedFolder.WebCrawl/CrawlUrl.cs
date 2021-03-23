@@ -1,16 +1,23 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
 using RedFolder.WebCrawl.Crawler.Models;
+using System;
 
 namespace RedFolder.WebCrawl
 {
-    public static class CrawlUrl
+    public class CrawlUrl
     {
-        [FunctionName("CrawlUrl")]
-        public static UrlInfo Run([ActivityTrigger] string url, ILogger log)
+        private readonly Func<string, Crawler.Crawler> _crawlerFactory;
+
+        public CrawlUrl(Func<string, Crawler.Crawler> crawlerFactory)
         {
-            var crawler = new Crawler.Crawler("https://red-folder.com", log);
+            _crawlerFactory = crawlerFactory;
+        }
+
+        [FunctionName("CrawlUrl")]
+        public UrlInfo Run([ActivityTrigger] string url)
+        {
+            var crawler = _crawlerFactory("http://rfc-website-staging.azurewebsites.net");
 
             return crawler.Crawl(url);
         }

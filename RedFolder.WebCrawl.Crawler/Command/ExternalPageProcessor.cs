@@ -4,28 +4,27 @@ using System.Linq;
 
 namespace RedFolder.WebCrawl.Crawler
 {
-    public class ExternalPageProcessor : BaseProcessor
+    public class ExternalPageProcessor : IProcessUrl
     {
-        private IList<string> _internalDomains;
+        private readonly IList<string> _internalDomains;
 
         public ExternalPageProcessor(IList<string> internalDomains)
         {
             _internalDomains = internalDomains;
         }
 
-        public override UrlInfo Process(string url)
+        public UrlInfo Process(string url)
         {
             if (CanBeHandled(url))
             {
                 return new UrlInfo
                 {
-                    Url = url
+                    Url = url,
+                    UrlType = UrlInfo.UrlTypes.ExternalPage
                 };
             }
-            else
-            {
-                return base.Process(url);
-            }
+
+            return null;
         }
 
         private bool CanBeHandled(string url)

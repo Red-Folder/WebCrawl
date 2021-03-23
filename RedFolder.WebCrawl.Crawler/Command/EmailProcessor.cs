@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace RedFolder.WebCrawl.Crawler
 {
-    public class EmailProcessor : BaseProcessor
+    public class EmailProcessor : IProcessUrl
     {
         private IList<string> _knownEmails;
 
@@ -12,19 +12,18 @@ namespace RedFolder.WebCrawl.Crawler
             _knownEmails = PopulateKnownEmails();
         }
 
-        public override UrlInfo Process(string url)
+        public UrlInfo Process(string url)
         {
             if (CanBeHandled(url))
             {
                 return new UrlInfo
                 {
-                    Url = url
+                    Url = url,
+                    UrlType = UrlInfo.UrlTypes.Email
                 };
             }
-            else
-            {
-                return base.Process(url);
-            }
+
+            return null;
         }
 
         private bool CanBeHandled(string url)
