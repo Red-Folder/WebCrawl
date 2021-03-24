@@ -18,7 +18,7 @@ namespace RedFolder.WebCrawl
         {
             var request = context.GetInput<CrawlRequest>();
 
-            var state = new CrawlState();
+            var state = new CrawlState(configuration: request);
             state.AddUrl($"{request.Host}/sitemap.xml");
 
             var currentDepth = 0;
@@ -27,6 +27,7 @@ namespace RedFolder.WebCrawl
                 var urlsToCrawl = state.Awaiting();
 
                 var crawlTasks = urlsToCrawl
+                                    .Select(x => new CrawlUrlRequest { Host = request.Host, Url = x })
                                     .Select(x => context.CallActivityAsync<UrlInfo>("CrawlUrl", x))
                                     .ToList();
 

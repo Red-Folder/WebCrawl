@@ -15,11 +15,11 @@ namespace RedFolder.WebCrawl
         }
 
         [FunctionName("CrawlUrl")]
-        public UrlInfo Run([ActivityTrigger] string url)
+        public UrlInfo Run([ActivityTrigger] CrawlUrlRequest request)
         {
-            var crawler = _crawlerFactory("http://rfc-website-staging.azurewebsites.net");
+            var crawler = _crawlerFactory(request.Host);
 
-            return crawler.Crawl(url);
+            return crawler.Crawl(request.Url);
         }
     }
 }
