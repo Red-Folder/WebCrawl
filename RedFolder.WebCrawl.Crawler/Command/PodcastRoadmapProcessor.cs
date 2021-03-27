@@ -1,15 +1,15 @@
-﻿using RedFolder.WebCrawl.Crawler.Helpers;
-using RedFolder.WebCrawl.Crawler.Models;
+﻿using RedFolder.WebCrawl.Crawler.Models;
+using System.Net.Http;
 
 namespace RedFolder.WebCrawl.Crawler
 {
     public class PodcastRoadmapProcessor : IProcessUrl
     {
-        private readonly IHttpClientWrapper _httpClient;
+        private readonly IHttpClientFactory _clientFactory;
 
-        public PodcastRoadmapProcessor(IHttpClientWrapper httpClient)
+        public PodcastRoadmapProcessor(IHttpClientFactory clientFatory)
         {
-            _httpClient = httpClient;
+            _clientFactory = clientFatory;
         }
 
         public UrlInfo Process(string url)
@@ -29,12 +29,13 @@ namespace RedFolder.WebCrawl.Crawler
 
         private UrlInfo Handle(string url)
         {
-            _httpClient.Get(url);
+            var httpClient = _clientFactory.CreateClient("default");
+            var response = httpClient.GetAsync(url).Result;
 
             return new UrlInfo
             {
                 Url = url,
-                InvalidationMessage = _httpClient.LastHttpStatusCode == System.Net.HttpStatusCode.Redirect ? null : $"Unexpected Status code: {_httpClient.LastHttpStatusCode}",
+                InvalidationMessage = response.StatusCode == System.Net.HttpStatusCode.Redirect ? null : $"Unexpected Status code: {response.StatusCode}",
                 UrlType = UrlInfo.UrlTypes.PodcastRoadmap
             };
         }

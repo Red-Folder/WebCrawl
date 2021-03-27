@@ -22,8 +22,6 @@ namespace RedFolder.WebCrawl
                     AllowAutoRedirect = false
                 });
 
-            builder.Services.AddTransient<IHttpClientWrapper, HttpClientWrapper>();
-
             builder.Services.AddTransient(provider =>
             {
                 return new Func<string, SortedList<int, IProcessUrl>>((string host) =>
@@ -41,15 +39,15 @@ namespace RedFolder.WebCrawl
                     {
                         { 100, new CloudflareCgiProcesser() },
                         { 200, new LegacyProcessor() },
-                        { 300, new ImageProcessor(provider.GetService<IHttpClientWrapper>()) },
-                        { 400, new ContentProcessor(provider.GetService<IHttpClientWrapper>()) },
+                        { 300, new ImageProcessor(provider.GetService<IHttpClientFactory>()) },
+                        { 400, new ContentProcessor(provider.GetService<IHttpClientFactory>()) },
                         { 500, new KnownPageProcessor() },
                         { 600, new EmailProcessor() },
                         { 700, new ExternalPageProcessor(internalDomains) },
-                        { 800, new PodcastRoadmapProcessor(provider.GetService<IHttpClientWrapper>()) },
-                        { 900, new PageProcessor(gistDomain, provider.GetService<IHttpClientWrapper>(), null) },
-                        { 1000, new PageProcessor(githubDomain, provider.GetService<IHttpClientWrapper>(), null) },
-                        { 1100, new PageProcessor(host, provider.GetService<IHttpClientWrapper>(), new ContentLinksExtractor(host)) }
+                        { 800, new PodcastRoadmapProcessor(provider.GetService<IHttpClientFactory>()) },
+                        { 900, new PageProcessor(gistDomain, provider.GetService<IHttpClientFactory>(), null) },
+                        { 1000, new PageProcessor(githubDomain, provider.GetService<IHttpClientFactory>(), null) },
+                        { 1100, new PageProcessor(host, provider.GetService<IHttpClientFactory>(), new ContentLinksExtractor(host)) }
                     };
                 });
             });

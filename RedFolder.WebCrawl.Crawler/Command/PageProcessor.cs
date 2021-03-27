@@ -2,6 +2,7 @@
 using RedFolder.WebCrawl.Crawler.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 
 namespace RedFolder.WebCrawl.Crawler
 {
@@ -9,13 +10,13 @@ namespace RedFolder.WebCrawl.Crawler
     {
         private readonly string _domain;
         private readonly ILinksExtractor _linksExtrator;
-        private readonly IHttpClientWrapper _httpClient;
+        private readonly IHttpClientFactory _clientFactory;
 
-        public PageProcessor(string domain, IHttpClientWrapper httpClient, ILinksExtractor linksExtractor)
+        public PageProcessor(string domain, IHttpClientFactory clientFactory, ILinksExtractor linksExtractor)
         {
             _domain = domain;
             _linksExtrator = linksExtractor;
-            _httpClient = httpClient;
+            _clientFactory = clientFactory;
         }
 
         public UrlInfo Process(string url)
@@ -35,9 +36,10 @@ namespace RedFolder.WebCrawl.Crawler
 
         private UrlInfo Handle(string url)
         {
-            _httpClient.Get(url);
+            var httpClient = _clientFactory.CreateClient("default");
+            var response = httpClient.GetAsync(url).Result;
 
-            if (_httpClient.LastHttpStatusCode == System.Net.HttpStatusCode.OK || _httpClient.LastHttpStatusCode == System.Net.HttpStatusCode.MovedPermanently)
+            if (response.StatusCode == System.Net.HttpStatusCode.OK || response.StatusCode == System.Net.HttpStatusCode.MovedPermanently)
             {
                 if (_linksExtrator == null)
                 {
@@ -52,11 +54,11 @@ namespace RedFolder.WebCrawl.Crawler
                     IList<string> links = null;
                     if (_linksExtrator is ContentLinksExtractor)
                     {
-                        links = _linksExtrator.Extract(_httpClient.LastHttpResponse);
+                        links = _linksExtrator.Extract(response.Content.ReadAsStringAsync().Result);
                     }
                     else
                     {
-                        links = _linksExtrator.Extract(_httpClient.LastHttpResponseHeaders.GetValues("location").FirstOrDefault());
+                        links = _linksExtrator.Extract(response.Headers.GetValues("location").FirstOrDefault());
                     }
 
                     return new UrlInfo
@@ -72,7 +74,7 @@ namespace RedFolder.WebCrawl.Crawler
                 return new UrlInfo
                 {
                     Url = url,
-                    InvalidationMessage = $"Unexpected Status code: {_httpClient.LastHttpStatusCode}",
+                    InvalidationMessage = $"Unexpected Status code: {response.StatusCode}",
                     UrlType = UrlInfo.UrlTypes.Page
                 };
             }

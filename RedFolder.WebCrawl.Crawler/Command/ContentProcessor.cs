@@ -1,15 +1,15 @@
-﻿using RedFolder.WebCrawl.Crawler.Helpers;
-using RedFolder.WebCrawl.Crawler.Models;
+﻿using RedFolder.WebCrawl.Crawler.Models;
+using System.Net.Http;
 
 namespace RedFolder.WebCrawl.Crawler
 {
     public class ContentProcessor : IProcessUrl
     {
-        private readonly IHttpClientWrapper _httpClient;
+        private readonly IHttpClientFactory _clientFactory;
 
-        public ContentProcessor(IHttpClientWrapper httpClient)
+        public ContentProcessor(IHttpClientFactory clientFatory)
         {
-            _httpClient = httpClient;
+            _clientFactory = clientFatory;
         }
 
         public UrlInfo Process(string url)
@@ -32,12 +32,13 @@ namespace RedFolder.WebCrawl.Crawler
 
         private UrlInfo Handle(string url)
         {
-            _httpClient.Get(url);
+            var httpClient = _clientFactory.CreateClient("default");
+            var response = httpClient.GetAsync(url).Result;
 
             return new UrlInfo
             {
                 Url = url,
-                InvalidationMessage = _httpClient.LastHttpStatusCode == System.Net.HttpStatusCode.OK ? "" : $"Unexpected Status code: {_httpClient.LastHttpStatusCode}",
+                InvalidationMessage = response.StatusCode == System.Net.HttpStatusCode.OK ? "" : $"Unexpected Status code: {response.StatusCode}",
                 UrlType = UrlInfo.UrlTypes.Content
             };
         }
