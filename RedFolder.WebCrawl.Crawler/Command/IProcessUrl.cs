@@ -1,9 +1,10 @@
 ﻿using RedFolder.WebCrawl.Crawler.Models;
+using System.Threading.Tasks;
 
 namespace RedFolder.WebCrawl.Crawler
 {
     public interface IProcessUrl
     {
-        UrlInfo Process(string url);
+        Task<UrlInfo> Process(string url);
     }
 }

@@ -3,6 +3,7 @@ using RedFolder.WebCrawl.Crawler.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace RedFolder.WebCrawl.Crawler
 {
@@ -19,11 +20,11 @@ namespace RedFolder.WebCrawl.Crawler
             _clientFactory = clientFactory;
         }
 
-        public UrlInfo Process(string url)
+        public async Task<UrlInfo> Process(string url)
         {
             if (CanBeHandled(url))
             {
-                return Handle(url);
+                return await Handle(url);
             }
 
             return null;
@@ -34,10 +35,10 @@ namespace RedFolder.WebCrawl.Crawler
             return url.StartsWith(_domain);
         }
 
-        private UrlInfo Handle(string url)
+        private async Task<UrlInfo> Handle(string url)
         {
             var httpClient = _clientFactory.CreateClient("default");
-            var response = httpClient.GetAsync(url).Result;
+            var response = await httpClient.GetAsync(url);
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK || response.StatusCode == System.Net.HttpStatusCode.MovedPermanently)
             {
@@ -54,7 +55,8 @@ namespace RedFolder.WebCrawl.Crawler
                     IList<string> links = null;
                     if (_linksExtrator is ContentLinksExtractor)
                     {
-                        links = _linksExtrator.Extract(response.Content.ReadAsStringAsync().Result);
+                        var content = await response.Content.ReadAsStringAsync();
+                        links = _linksExtrator.Extract(content);
                     }
                     else
                     {

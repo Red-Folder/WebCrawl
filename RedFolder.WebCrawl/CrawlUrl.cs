@@ -2,6 +2,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using RedFolder.WebCrawl.Crawler.Models;
 using System;
+using System.Threading.Tasks;
 
 namespace RedFolder.WebCrawl
 {
@@ -15,11 +16,11 @@ namespace RedFolder.WebCrawl
         }
 
         [FunctionName("CrawlUrl")]
-        public UrlInfo Run([ActivityTrigger] CrawlUrlRequest request)
+        public async Task<UrlInfo> Run([ActivityTrigger] CrawlUrlRequest request)
         {
             var crawler = _crawlerFactory(request.Host);
 
-            return crawler.Crawl(request.Url);
+            return await crawler.Crawl(request.Url);
         }
     }
 }

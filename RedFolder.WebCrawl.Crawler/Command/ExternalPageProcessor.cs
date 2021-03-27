@@ -1,6 +1,7 @@
 ﻿using RedFolder.WebCrawl.Crawler.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace RedFolder.WebCrawl.Crawler
 {
@@ -13,18 +14,18 @@ namespace RedFolder.WebCrawl.Crawler
             _internalDomains = internalDomains;
         }
 
-        public UrlInfo Process(string url)
+        public Task<UrlInfo> Process(string url)
         {
             if (CanBeHandled(url))
             {
-                return new UrlInfo
+                return Task.FromResult(new UrlInfo
                 {
                     Url = url,
                     UrlType = UrlInfo.UrlTypes.ExternalPage
-                };
+                });
             }
 
-            return null;
+            return Task.FromResult<UrlInfo>(null);
         }
 
         private bool CanBeHandled(string url)

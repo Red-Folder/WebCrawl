@@ -2,6 +2,7 @@
 using RedFolder.WebCrawl.Crawler.Models;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace RedFolder.WebCrawl.Crawler
 {
@@ -16,7 +17,7 @@ namespace RedFolder.WebCrawl.Crawler
             _log = log;
         }
 
-        public UrlInfo Crawl(string url)
+        public async Task<UrlInfo> Crawl(string url)
         {
             try
             {
@@ -24,7 +25,7 @@ namespace RedFolder.WebCrawl.Crawler
 
                 foreach (var processor in _processors.Values)
                 {
-                    result = processor.Process(url);
+                    result = await processor.Process(url);
 
                     if (result != null) break;
                 }

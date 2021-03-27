@@ -1,5 +1,6 @@
 ﻿using RedFolder.WebCrawl.Crawler.Models;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace RedFolder.WebCrawl.Crawler
 {
@@ -12,11 +13,11 @@ namespace RedFolder.WebCrawl.Crawler
             _clientFactory = clientFatory;
         }
 
-        public UrlInfo Process(string url)
+        public async Task<UrlInfo> Process(string url)
         {
             if (CanBeHandled(url))
             {
-                return Handle(url);
+                return await Handle(url);
             }
 
             return null;
@@ -27,10 +28,10 @@ namespace RedFolder.WebCrawl.Crawler
             return url.Contains("/podcasts/roadmap");
         }
 
-        private UrlInfo Handle(string url)
+        private async Task<UrlInfo> Handle(string url)
         {
             var httpClient = _clientFactory.CreateClient("default");
-            var response = httpClient.GetAsync(url).Result;
+            var response = await httpClient.GetAsync(url);
 
             return new UrlInfo
             {
