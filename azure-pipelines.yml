@@ -55,7 +55,7 @@ stages:
       inputs:
         command: 'build'
         projects: 'RedFolder.WebCrawl/RedFolder.WebCrawl.csproj'
-        arguments: --output $(System.DefaultWorkingDirectory)/publish_output Release --no-restore
+        arguments: --output $(System.DefaultWorkingDirectory)/publish_output --configuration Release --no-restore
 
     #- task: DotNetCoreCLI@2
     #  displayName: Publish
