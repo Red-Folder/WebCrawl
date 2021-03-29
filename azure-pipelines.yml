@@ -64,7 +64,7 @@ stages:
     - task: ArchiveFiles@2
       displayName: 'Archive files'
       inputs:
-        rootFolderOrFile: 'publish_output/RedFolder.WebCrawl'
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/publish_output'
         includeRootFolder: false
         archiveType: zip
         archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
@@ -74,7 +74,7 @@ stages:
       displayName: 'Publish Azure Function (application)'
       artifact: application
 
-    - publish: Infrastructure/WebCrawl.bicep
+    - publish: '$(System.DefaultWorkingDirectory)/publish_output/Infrastructure/WebCrawl.bicep'
       displayName: 'Publish Azure Infrastructure (infrastructure)'
       artifact: infrastructure
 
