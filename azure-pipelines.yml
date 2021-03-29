@@ -44,13 +44,6 @@ stages:
         projects: '**/*.csproj'
 
     - task: DotNetCoreCLI@2
-      displayName: Build
-      inputs:
-        command: 'build'
-        projects: '**/*.csproj'
-        arguments: --configuration Release --no-restore
-
-    - task: DotNetCoreCLI@2
       displayName: Test
       inputs:
         command: 'test'
@@ -58,12 +51,19 @@ stages:
         arguments: --no-restore
 
     - task: DotNetCoreCLI@2
-      displayName: Publish
+      displayName: Build
       inputs:
-        command: 'publish'
-        publishWebProjects: false
+        command: 'build'
         projects: 'RedFolder.WebCrawl/RedFolder.WebCrawl.csproj'
-        arguments: --output ./publish_output --configuration Release --no-restore
+        arguments: --output $(System.DefaultWorkingDirectory)/publish_output Release --no-restore
+
+    #- task: DotNetCoreCLI@2
+    #  displayName: Publish
+    #  inputs:
+    #    command: 'publish'
+    #    publishWebProjects: false
+    #    projects: 'RedFolder.WebCrawl/RedFolder.WebCrawl.csproj'
+    #    arguments: --output ./publish_output --configuration Release --no-restore
     
     - task: ArchiveFiles@2
       displayName: 'Archive files'
