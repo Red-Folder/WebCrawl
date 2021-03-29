@@ -31,25 +31,24 @@ stages:
 
     steps:
     - task: DotNetCoreCLI@2
+      displayName: Restore
       inputs:
         command: 'restore'
-        projects: |
-          $(workingDirectory)/*.csproj
-          
+        projects: '**/*.csproj'
+
     - task: DotNetCoreCLI@2
       displayName: Test
       inputs:
         command: 'test'
-        projects: |
-          $(workingDirectory)/*.csproj
+        projects: '**/*.UnitTests.csproj'
+        arguments: --no-restore
 
     - task: DotNetCoreCLI@2
       displayName: Build
       inputs:
         command: 'build'
-        projects: |
-          $(workingDirectory)/*.csproj
-        arguments: --output --configuration Release
+        projects: '**/*.csproj'
+        arguments: --output --configuration Release --no-restore
 
     - task: CopyFiles@2
       displayName: 'Copy in the infrastructure script'
