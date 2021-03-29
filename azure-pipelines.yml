@@ -17,7 +17,7 @@ variables:
   vmImageName: 'vs2017-win2016'
 
   # Working Directory
-  workingDirectory: '$(System.DefaultWorkingDirectory)/RedFolder.WebCrawl'
+  workingDirectory: '$(System.DefaultWorkingDirectory)'
 
 stages:
 - stage: Build
@@ -30,11 +30,24 @@ stages:
       vmImage: $(vmImageName)
 
     steps:
+    - task: UseDotNet@2
+      displayName: 'Use .NET Core sdk'
+      inputs:
+        packageType: sdk
+        version: 3.x
+
     - task: DotNetCoreCLI@2
       displayName: Restore
       inputs:
         command: 'restore'
         projects: '**/*.csproj'
+
+    - task: DotNetCoreCLI@2
+      displayName: Build
+      inputs:
+        command: 'build'
+        projects: '**/*.csproj'
+        arguments: --configuration Release --no-restore
 
     - task: DotNetCoreCLI@2
       displayName: Test
@@ -44,10 +57,10 @@ stages:
         arguments: --no-restore
 
     - task: DotNetCoreCLI@2
-      displayName: Build
+      displayName: Publish
       inputs:
-        command: 'build'
-        projects: '**/*.csproj'
+        command: 'publish'
+        projects: 'RedFolder.WebCrawl/RedFolder.WebCrawl.csproj'
         arguments: --output '$(System.DefaultWorkingDirectory)/publish_output' --configuration Release --no-restore
 
     - task: CopyFiles@2
