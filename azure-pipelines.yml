@@ -20,7 +20,7 @@ variables:
   workingDirectory: '$(System.DefaultWorkingDirectory)/RedFolder.WebCrawl'
 
 stages:
-- stage: Test & Build
+- stage: Build
   displayName: Test & Build stage
 
   jobs:
