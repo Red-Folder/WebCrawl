@@ -74,7 +74,7 @@ stages:
       displayName: 'Publish Azure Function (application)'
       artifact: application
 
-    - publish: '$(System.DefaultWorkingDirectory)/publish_output/Infrastructure/WebCrawl.bicep'
+    - publish: '$(System.DefaultWorkingDirectory)/Infrastructure/WebCrawl.bicep'
       displayName: 'Publish Azure Infrastructure (infrastructure)'
       artifact: infrastructure
 
