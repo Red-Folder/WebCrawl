@@ -1,0 +1,119 @@
+# .NET Core Function App to Windows on Azure
+# Build a .NET Core function app and deploy it to Azure as a Windows function App.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- main
+
+variables:
+  # Azure Resource Manager connection created during pipeline creation
+  azureSubscription: '60b9a1a3-d433-4f66-937d-8834d4ea7e6b'
+
+  # Function app name
+  functionAppName: 'rfc-web-crawl'
+
+  # Agent VM image name
+  vmImageName: 'vs2017-win2016'
+
+  # Working Directory
+  workingDirectory: '$(System.DefaultWorkingDirectory)/RedFolder.WebCrawl'
+
+stages:
+- stage: Test & Build
+  displayName: Test & Build stage
+
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+
+    steps:
+    - task: DotNetCoreCLI@2
+      displayName: Test
+      inputs:
+        command: 'test'
+        projects: |
+          $(workingDirectory)/*.csproj
+
+    - task: DotNetCoreCLI@2
+      displayName: Build
+      inputs:
+        command: 'build'
+        projects: |
+          $(workingDirectory)/*.csproj
+        arguments: --output --configuration Release
+
+    - task: CopyFiles@2
+      displayName: 'Copy in the infrastructure script'
+      inputs:
+        SourceFolder: '$(workingDirectory)/Infrastructure'
+        Contents: '**'
+        TargetFolder: '$(System.DefaultWorkingDirectory)/publish_output' 
+
+    - task: ArchiveFiles@2
+      displayName: 'Archive files'
+      inputs:
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/publish_output'
+        includeRootFolder: false
+        archiveType: zip
+        archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+        replaceExistingArchive: true
+
+    - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+      artifact: drop
+
+- stage: Infrastructure
+  displayName: Prepare Infrastructure stage
+  dependsOn: Build
+  condition: succeeded()
+
+  jobs:
+  - deployment: Provision
+    displayName: Provision
+    environment: 'development'
+    pool:
+      vmImage: $(vmImageName)
+
+    strategy:
+      runOnce:
+        deploy:
+
+          steps:
+          - task: AzureResourceManagerTemplateDeployment@3
+            inputs:
+              deploymentScope: 'Resource Group'
+              azureResourceManagerConnection: 'Red Folder Staging (276e2abc-6a34-4925-b24f-73913402ea4a)'
+              subscriptionId: '276e2abc-6a34-4925-b24f-73913402ea4a'
+              action: 'Create Or Update Resource Group'
+              resourceGroupName: 'rfc-web-crawl'
+              location: 'UK West'
+              templateLocation: 'Linked artifact'
+              csmFile: 'WebCrawl.bicep'
+              deploymentMode: 'Complete'
+
+- stage: Deploy
+  displayName: Deploy stage
+  dependsOn: Infrastructure
+  condition: succeeded()
+
+  jobs:
+  - deployment: Deploy
+    displayName: Deploy
+    environment: 'development'
+    pool:
+      vmImage: $(vmImageName)
+
+    strategy:
+      runOnce:
+        deploy:
+
+          steps:
+          - task: AzureFunctionApp@1
+            displayName: 'Azure functions app deploy'
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              appType: functionApp
+              appName: $(functionAppName)
+              package: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'
