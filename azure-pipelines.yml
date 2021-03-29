@@ -60,9 +60,10 @@ stages:
       displayName: Publish
       inputs:
         command: 'publish'
+        publishWebProjects: false
         projects: 'RedFolder.WebCrawl/RedFolder.WebCrawl.csproj'
         arguments: --output '$(System.DefaultWorkingDirectory)/publish_output' --configuration Release --no-restore
-
+    
     - task: CopyFiles@2
       displayName: 'Copy in the infrastructure script'
       inputs:
