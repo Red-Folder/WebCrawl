@@ -59,7 +59,7 @@ stages:
         command: 'publish'
         publishWebProjects: false
         projects: 'RedFolder.WebCrawl/RedFolder.WebCrawl.csproj'
-        arguments: --output 'publish_output' --configuration Release --no-restore
+        arguments: --output ./publish_output --configuration Release --no-restore
     
     - task: ArchiveFiles@2
       displayName: 'Archive files'
