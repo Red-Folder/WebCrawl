@@ -143,3 +143,4 @@ stages:
               appType: functionApp
               appName: $(functionAppName)
               package: '$(Pipeline.Workspace)/application/$(Build.BuildId).zip'
+              deploymentMethod: 'runFromPackage'
